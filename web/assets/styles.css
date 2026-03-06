@@ -1,0 +1,359 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  --paper: #f4f1e8;
+  --ink: #12263a;
+  --muted: #3f5363;
+  --teal: #0e8f88;
+  --orange: #de6a2a;
+  --sand: #d9c8a6;
+  --card: rgba(255, 255, 255, 0.88);
+  --border: rgba(18, 38, 58, 0.12);
+  --ok: #238a53;
+  --warn: #af5f00;
+  --run: #b94f0c;
+  --shadow: 0 14px 40px rgba(18, 38, 58, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Noto Sans SC", sans-serif;
+  background: radial-gradient(circle at 15% 10%, #f9f8f3 0%, var(--paper) 42%, #ece8de 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(to right, rgba(18, 38, 58, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(18, 38, 58, 0.04) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 88%);
+  pointer-events: none;
+}
+
+.bg-orb {
+  position: fixed;
+  width: 36rem;
+  height: 36rem;
+  border-radius: 999px;
+  filter: blur(46px);
+  opacity: 0.4;
+  pointer-events: none;
+  animation: drift 16s ease-in-out infinite;
+}
+
+.orb-a {
+  background: rgba(14, 143, 136, 0.45);
+  top: -12rem;
+  left: -8rem;
+}
+
+.orb-b {
+  background: rgba(222, 106, 42, 0.4);
+  bottom: -15rem;
+  right: -8rem;
+  animation-delay: -8s;
+}
+
+.hero {
+  max-width: 1200px;
+  margin: 3rem auto 1.25rem;
+  padding: 0 1.2rem;
+  animation: rise 0.6s ease both;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--teal);
+  font-size: 0.82rem;
+}
+
+h1 {
+  margin: 0.4rem 0;
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+  line-height: 1.1;
+  font-size: clamp(1.8rem, 4.3vw, 3rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  max-width: 52rem;
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto 2.6rem;
+  padding: 0 1.2rem 1.2rem;
+  display: grid;
+  grid-template-columns: minmax(290px, 390px) 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(3px);
+  animation: rise 0.7s ease both;
+}
+
+.panel-form {
+  padding: 1.1rem;
+}
+
+.panel-form h2,
+.panel-results h2 {
+  margin: 0 0 0.8rem;
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  margin: 0.7rem 0 0.35rem;
+  color: var(--muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+select,
+input,
+textarea {
+  width: 100%;
+  border: 1px solid rgba(18, 38, 58, 0.25);
+  border-radius: 10px;
+  padding: 0.68rem 0.72rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #fffdfa;
+  color: var(--ink);
+}
+
+textarea {
+  resize: vertical;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid rgba(14, 143, 136, 0.34);
+  outline-offset: 1px;
+}
+
+.toggles {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.toggle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+}
+
+.toggle input {
+  width: auto;
+}
+
+button {
+  margin-top: 0.95rem;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 0.86rem 0.9rem;
+  font-size: 1rem;
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+  color: #fff;
+  background: linear-gradient(120deg, var(--teal), #136d8b, var(--orange));
+  background-size: 180% 180%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  animation: hue-shift 7s ease infinite;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.panel-results {
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.status-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.32rem 0.78rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status.idle {
+  color: var(--muted);
+  background: rgba(18, 38, 58, 0.08);
+}
+
+.status.running {
+  color: #fff;
+  background: var(--run);
+  animation: pulse 1s ease infinite;
+}
+
+.status.done {
+  color: #fff;
+  background: var(--ok);
+}
+
+.status.error {
+  color: #fff;
+  background: #a42828;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.75rem;
+}
+
+h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.98rem;
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+}
+
+pre {
+  margin: 0;
+  background: #fdfcf8;
+  border: 1px solid rgba(18, 38, 58, 0.1);
+  border-radius: 10px;
+  padding: 0.7rem;
+  min-height: 130px;
+  max-height: 290px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.logs {
+  min-height: 120px;
+  max-height: 240px;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.media-wrap {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(18, 38, 58, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--muted);
+  font-size: 0.92rem;
+  overflow: hidden;
+}
+
+.media-wrap img,
+.media-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.media-wrap.empty {
+  border-style: dashed;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(12px, -14px);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hue-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .row,
+  .media-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Toy Localization Studio</title>
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+  <div class="bg-grid"></div>
+
+  <header class="hero">
+    <p class="eyebrow">Toy Localization Studio</p>
+    <h1>玩具出海本土化控制台</h1>
+    <p class="subtitle">填写市场与产品描述，一键生成本土化方案，并可继续生成概念图与3D展示。</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel-form">
+      <h2>运行参数</h2>
+      <form id="run-form">
+        <label for="country">目标国家</label>
+        <div class="row">
+          <select id="country" name="country"></select>
+          <input id="country-custom" placeholder="或手动输入国家码，如 usa" />
+        </div>
+
+        <label for="description">玩具描述</label>
+        <textarea id="description" name="description" rows="6" required>一款可以拼装成小车和机器人两种形态的积木玩具</textarea>
+
+        <div class="toggles">
+          <label class="toggle">
+            <input type="checkbox" id="skip-vision" name="skip_vision" />
+            <span>仅生成文本方案（跳过视觉阶段）</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="auto-3d" name="auto_3d" checked />
+            <span>自动生成3D展示（需要视觉阶段）</span>
+          </label>
+        </div>
+
+        <button type="submit" id="run-btn">
+          <span id="run-btn-text">开始生成</span>
+        </button>
+      </form>
+    </section>
+
+    <section class="panel panel-results">
+      <div class="status-row">
+        <div id="status-pill" class="status idle">就绪</div>
+      </div>
+
+      <div class="result-card">
+        <h3>执行日志</h3>
+        <pre id="logs" class="logs">等待执行...</pre>
+      </div>
+
+      <div class="result-card">
+        <h3>最终方案</h3>
+        <pre id="final-plan">暂无结果</pre>
+      </div>
+
+      <div class="media-grid">
+        <div class="result-card">
+          <h3>概念图</h3>
+          <div id="image-wrap" class="media-wrap empty">暂无图片</div>
+        </div>
+        <div class="result-card">
+          <h3>3D展示</h3>
+          <div id="showcase-wrap" class="media-wrap empty">暂无展示结果</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

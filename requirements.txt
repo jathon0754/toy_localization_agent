@@ -1,0 +1,12 @@
+langchain==0.1.0
+langchain-community==0.0.20
+langchain-openai==0.0.6
+chromadb==0.4.22
+tiktoken>=0.5.2,<1.0.0
+requests>=2.31.0,<3.0.0
+pillow>=10.0.0,<13.0.0
+openai>=1.10.0,<2.0.0
+python-dotenv>=1.0.0,<2.0.0
+dashscope>=1.25.12
+fastapi>=0.110.0,<1.0.0
+uvicorn>=0.27.0,<1.0.0
