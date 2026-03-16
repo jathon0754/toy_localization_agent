@@ -1,3 +1,7 @@
+# last_updated: 2026-03-14
+# language: ja
+# sources: internal draft; verify with official standards
+# coverage: culture, compliance (high-level)
 色彩偏好：红色（喜庆）、白色（神圣）、金色（高级）、粉色（可爱）、避免大面积黑色（丧葬）。
 文化符号：樱花、和服纹样、达摩、招财猫、Hello Kitty风格。
 节日：儿童节（鲤鱼旗）、圣诞节（需避免宗教色彩过浓）、新年（门松、镜饼）。

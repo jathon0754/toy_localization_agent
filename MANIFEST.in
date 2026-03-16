@@ -1,0 +1,7 @@
+include README.md
+include requirements.txt
+include .env.example
+
+recursive-include knowledge/data *.txt
+recursive-include web *.html *.css *.js
+

@@ -19,6 +19,29 @@ dependencies = [
     "uvicorn>=0.27.0,<1.0.0",
 ]
 
+[project.scripts]
+toy-localization = "main:main"
+toy-localization-web = "webapp:main"
+
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["agents", "knowledge", "web"]
+py-modules = [
+    "config",
+    "workflow",
+    "webapp",
+    "main",
+    "formatting",
+    "schemas",
+    "market_normalizer",
+    "feature_heuristics",
+    "language_utils",
+    "verification",
+]
+
+[tool.setuptools.package-data]
+knowledge = ["data/*.txt"]
+web = ["index.html", "assets/*.css", "assets/*.js"]

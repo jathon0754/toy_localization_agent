@@ -19,7 +19,7 @@ class ShouldGenerate3DTests(unittest.TestCase):
             self.assertFalse(should_generate_3d(auto_3d=False))
 
     def test_non_interactive_defaults_to_skip(self) -> None:
-        with patch("builtins.input", side_effect=EOFError):
+        with patch("builtins.input", side_effect=EOFError), patch("builtins.print"):
             self.assertFalse(should_generate_3d(auto_3d=False))
 
 

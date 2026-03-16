@@ -39,6 +39,10 @@ knowledge/chroma_db/
 
 # Logs
 *.log
+logs/
+
+# Temporary local files
+tmp_utf8.txt
 
 # Editor / OS files
 .DS_Store

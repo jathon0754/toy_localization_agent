@@ -1,3 +1,7 @@
+# last_updated: 2026-03-14
+# language: en
+# sources: internal draft; verify with official standards
+# coverage: culture, compliance (high-level)
 色彩偏好：美国儿童喜欢鲜艳的原色（红、黄、蓝），以及近年流行的柔和马卡龙色。
 避免色彩：大面积黑色可能引起负面联想，除非用于特定主题（如万圣节）。
 文化符号：超级英雄、牛仔、印第安元素（注意文化敏感性）、自由女神、鹰。

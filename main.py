@@ -2,9 +2,7 @@
 """CLI entrypoint for toy localization workflow."""
 
 import argparse
-
-from config import ConfigError, validate_required_config
-from workflow import run_localization_workflow
+import sys
 
 
 def parse_args() -> argparse.Namespace:
@@ -21,6 +19,30 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Automatically continue to 3D generation without interactive prompt",
     )
+    parser.add_argument(
+        "--allow-incomplete",
+        action="store_true",
+        help="Continue even if critical product details are missing",
+    )
+    parser.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Disable interactive prompts for missing details",
+    )
+    parser.add_argument(
+        "--target-language",
+        default="",
+        help="Override output language, e.g. zh, en, ja (optional)",
+    )
+    parser.add_argument("--channel", default="", help="Go-to-market channel (e.g. ecommerce, retail)")
+    parser.add_argument("--price-band", default="", help="Price band (e.g. budget, mid, premium)")
+    parser.add_argument(
+        "--material-constraints", default="", help="Material constraints (comma-separated)"
+    )
+    parser.add_argument(
+        "--supplier-constraints", default="", help="Supplier constraints or exclusions"
+    )
+    parser.add_argument("--cost-ceiling", default="", help="Cost ceiling / BOM limit")
     return parser.parse_args()
 
 
@@ -38,6 +60,9 @@ def should_generate_3d(auto_3d: bool) -> bool:
 
 
 def main() -> int:
+    from config import ConfigError, validate_required_config
+    from workflow import run_localization_workflow
+
     args = parse_args()
     country = args.country.strip().lower()
 
@@ -53,17 +78,44 @@ def main() -> int:
         description=args.description,
         skip_vision=args.skip_vision,
         generate_3d=generate_3d,
+        target_language=args.target_language,
+        allow_incomplete=args.allow_incomplete,
+        interactive=not args.non_interactive,
+        go_to_market=args.channel,
+        price_band=args.price_band,
+        material_constraints=args.material_constraints,
+        supplier_constraints=args.supplier_constraints,
+        cost_ceiling=args.cost_ceiling,
         log_hook=print,
     )
 
     if not result.success:
         return 1
+    if result.status == "blocked":
+        if result.missing_feature_questions:
+            print("\nMissing details:")
+            for item in result.missing_feature_questions:
+                print(f"- {item}")
+        print("\n[blocked] Missing critical details. Re-run with --allow-incomplete to continue.")
+        return 2
+
+    def safe_print(text: str) -> None:
+        try:
+            print(text)
+        except UnicodeEncodeError:
+            encoded = text.encode(sys.stdout.encoding or "utf-8", errors="replace")
+            sys.stdout.buffer.write(encoded + b"\n")
+            sys.stdout.flush()
 
     print("\n========== FINAL PLAN ==========\n")
-    print(result.final_plan)
+    if result.run_id:
+        print(f"[run_id] {result.run_id}")
+    if result.output_dir:
+        print(f"[output_dir] {result.output_dir}")
+    safe_print(result.final_plan)
 
     if not args.skip_vision:
-        print(f"\nRefined prompt:\n{result.refined_prompt}\n")
+        safe_print(f"\nRefined prompt:\n{result.refined_prompt}\n")
         if result.image_path:
             print(f"Concept image saved to: {result.image_path}")
         if result.showcase_path:

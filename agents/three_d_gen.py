@@ -6,11 +6,13 @@ import math
 import os
 import shutil
 import subprocess
+from pathlib import Path
+from typing import Optional
 
 from langchain.tools import Tool
 from PIL import Image, ImageDraw
 
-from config import OUTPUT_DIR
+from config import OUTPUT_DIR, ensure_output_dir
 from .base_agent import BaseAgent
 
 
@@ -26,8 +28,32 @@ def _build_gradient_background(width: int, height: int) -> Image.Image:
     return bg
 
 
-def _generate_preview_gif(image_path: str) -> str:
+def _resolve_output_dir(output_dir: Optional[str], image_path: Optional[str] = None) -> Path:
+    if output_dir:
+        path = Path(output_dir)
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    output_root = ensure_output_dir()
+    if image_path:
+        try:
+            image = Path(image_path).resolve()
+            output_root = output_root.resolve()
+            image.relative_to(output_root)
+            return image.parent
+        except Exception:
+            return output_root
+    return output_root
+
+
+def _generate_preview_gif(image_path: str, *, output_dir: Optional[str] = None) -> str:
     """Generate a turntable-like GIF as fallback when 3D engine is unavailable."""
+    output_root = _resolve_output_dir(output_dir, image_path)
+    file_hash = hashlib.md5(image_path.encode("utf-8")).hexdigest()[:8]
+    output_path = os.path.join(str(output_root), f"preview_turntable_{file_hash}.gif")
+    if os.path.exists(output_path):
+        return output_path
+
     src = Image.open(image_path).convert("RGBA")
     canvas_size = (640, 480)
     frames = []
@@ -50,8 +76,6 @@ def _generate_preview_gif(image_path: str) -> str:
 
         frames.append(frame)
 
-    file_hash = hashlib.md5(image_path.encode("utf-8")).hexdigest()[:8]
-    output_path = os.path.join(OUTPUT_DIR, f"preview_turntable_{file_hash}.gif")
     frames[0].save(
         output_path,
         save_all=True,
@@ -63,7 +87,7 @@ def _generate_preview_gif(image_path: str) -> str:
     return output_path
 
 
-def generate_3d_from_image(image_path: str) -> str:
+def generate_3d_from_image(image_path: str, *, output_dir: Optional[str] = None) -> str:
     """
     Generate 3D showcase output from a single image.
 
@@ -75,10 +99,14 @@ def generate_3d_from_image(image_path: str) -> str:
     dreamgaussian_path = shutil.which("dreamgaussian")
     if dreamgaussian_path is None:
         print("未找到DreamGaussian，输出模拟旋转GIF预览。")
-        return _generate_preview_gif(image_path)
+        return _generate_preview_gif(image_path, output_dir=output_dir)
 
-    output_dir = os.path.join(OUTPUT_DIR, "3d")
+    output_root = _resolve_output_dir(output_dir, image_path)
+    output_dir = os.path.join(str(output_root), "3d")
     os.makedirs(output_dir, exist_ok=True)
+    video_path = os.path.join(output_dir, "video.mp4")
+    if os.path.exists(video_path):
+        return video_path
 
     cmd = [
         "python",
@@ -91,23 +119,22 @@ def generate_3d_from_image(image_path: str) -> str:
 
     try:
         subprocess.run(cmd, check=True, capture_output=True, timeout=300)
-        video_path = os.path.join(output_dir, "video.mp4")
         if os.path.exists(video_path):
             return video_path
 
         print("DreamGaussian执行完成，但未找到video.mp4，回退到GIF预览。")
-        return _generate_preview_gif(image_path)
+        return _generate_preview_gif(image_path, output_dir=output_dir)
     except Exception as exc:
         print(f"3D生成失败: {exc}. 回退到GIF预览。")
-        return _generate_preview_gif(image_path)
+        return _generate_preview_gif(image_path, output_dir=output_dir)
 
 
 class ThreeDGenAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, *, output_dir: Optional[str] = None):
         tools = [
             Tool(
                 name="single_image_to_3d",
-                func=generate_3d_from_image,
+                func=lambda image_path: generate_3d_from_image(image_path, output_dir=output_dir),
                 description="Generate a 3D showcase asset path from an input image path.",
             )
         ]

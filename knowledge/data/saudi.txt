@@ -1,3 +1,7 @@
+# last_updated: 2026-03-14
+# language: ar
+# sources: internal draft; verify with official standards
+# coverage: culture, compliance (high-level)
 色彩偏好：绿色（伊斯兰）、白色、金色，避免使用特定宗教符号。
 文化符号：椰枣树、阿拉伯马、几何图案、书法。
 禁忌：避免猪、狗形象，避免过于暴露的人物造型，尊重当地着装规范。

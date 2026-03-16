@@ -9,38 +9,87 @@ from pathlib import Path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 
-from config import CHROMA_PERSIST_DIR, EMBEDDING_MODEL, OPENAI_API_BASE, OPENAI_API_KEY, validate_required_config
+from config import CHROMA_PERSIST_DIR, EMBEDDING_MODEL, LLM_API_BASE, LLM_API_KEY, validate_required_config
+from urllib.parse import urlparse
+
+
+def _base_candidates() -> list[str]:
+    base = (LLM_API_BASE or "").strip().rstrip("/")
+    if not base:
+        return [""]
+    parsed = urlparse(base)
+    needs_v1 = (parsed.path in ("", "/")) and not base.endswith("/v1")
+    if needs_v1:
+        return [f"{base}/v1", base]
+    candidates = [base]
+    if not base.endswith("/v1"):
+        candidates.append(f"{base}/v1")
+    return candidates
+
+
+def _create_embeddings() -> OpenAIEmbeddings:
+    """Create OpenAIEmbeddings with compatibility across langchain-openai versions."""
+    last_exc = None
+    for base in _base_candidates():
+        try:
+            return OpenAIEmbeddings(
+                model=EMBEDDING_MODEL,
+                openai_api_key=LLM_API_KEY,
+                base_url=base or None,
+            )
+        except Exception as exc:
+            last_exc = exc
+            msg = str(exc).lower()
+            if "base_url" not in msg and "extra fields" not in msg:
+                break
+
+    for base in _base_candidates():
+        try:
+            return OpenAIEmbeddings(
+                model=EMBEDDING_MODEL,
+                openai_api_key=LLM_API_KEY,
+                openai_api_base=base or None,
+            )
+        except Exception as exc:
+            last_exc = exc
+
+    assert last_exc is not None
+    raise last_exc
+from knowledge.retriever import load_knowledge_file
 
 
 def build_knowledge_base(country_code: str, file_path: str, chunk_size: int, chunk_overlap: int) -> None:
-    loader = TextLoader(file_path, encoding="utf-8")
-    documents = loader.load()
-
+    meta, content = load_knowledge_file(Path(file_path))
     text_splitter = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    docs = text_splitter.split_documents(documents)
+    metadatas = [meta] if meta else None
+    docs = text_splitter.create_documents([content], metadatas=metadatas)
 
-    embeddings = OpenAIEmbeddings(
-        model=EMBEDDING_MODEL,
-        openai_api_key=OPENAI_API_KEY,
-        base_url=OPENAI_API_BASE,
-    )
+    embeddings = _create_embeddings()
 
     persist_dir = Path(CHROMA_PERSIST_DIR) / country_code
     if persist_dir.exists():
         shutil.rmtree(persist_dir)
     persist_dir.parent.mkdir(parents=True, exist_ok=True)
 
-    vectordb = Chroma.from_documents(
-        docs,
-        embeddings,
-        persist_directory=str(persist_dir),
-    )
-    vectordb.persist()
-    print(f"Knowledge base built: {country_code}")
+    try:
+        vectordb = Chroma.from_documents(
+            docs,
+            embeddings,
+            persist_directory=str(persist_dir),
+        )
+        vectordb.persist()
+        print(f"Knowledge base built: {country_code}")
+    except Exception as exc:
+        message = str(exc).lower()
+        if "404" in message or "not found" in message:
+            print(
+                f"[warning] Embeddings endpoint unavailable; skipping vector build for {country_code}."
+            )
+            return
+        raise
 
 
 def parse_args() -> argparse.Namespace:
