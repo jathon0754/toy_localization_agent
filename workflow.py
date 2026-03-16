@@ -201,13 +201,6 @@ def _build_missing_feature_items(
             "Wireless protocol (Bluetooth / Wi‑Fi / 2.4G)?",
         )
 
-    if _is_missing_text(feature_data.get("materials_mentioned")):
-        add(
-            "materials_mentioned",
-            "主要材料（塑料/木/金属/布料）？",
-            "Primary materials (plastic / wood / metal / fabric)?",
-        )
-
     return items
 
 
@@ -709,13 +702,21 @@ def run_localization_workflow(
             "cost_ceiling": cost_ceiling,
         }
 
+        culture_knowledge = getattr(culture_expert, "knowledge", None)
+        regulation_knowledge = getattr(regulation_expert, "knowledge", None)
         knowledge_versions = {
-            "culture": getattr(culture_expert.knowledge, "version_tag", ""),
-            "regulation": getattr(regulation_expert.knowledge, "version_tag", ""),
+            "culture": getattr(culture_knowledge, "version_tag", "") if culture_knowledge else "",
+            "regulation": getattr(regulation_knowledge, "version_tag", "")
+            if regulation_knowledge
+            else "",
         }
         knowledge_metadata = {
-            "culture": dict(getattr(culture_expert.knowledge, "metadata", {}) or {}),
-            "regulation": dict(getattr(regulation_expert.knowledge, "metadata", {}) or {}),
+            "culture": dict(getattr(culture_knowledge, "metadata", {}) or {})
+            if culture_knowledge
+            else {},
+            "regulation": dict(getattr(regulation_knowledge, "metadata", {}) or {})
+            if regulation_knowledge
+            else {},
         }
         metadata_language, metadata_notes = _select_metadata_language(
             knowledge_metadata.get("culture", {}), knowledge_metadata.get("regulation", {})
@@ -1029,7 +1030,9 @@ def run_localization_workflow(
 
         compliance_blockers = _build_compliance_blockers(
             market=normalized_country,
-            knowledge_version=getattr(regulation_expert.knowledge, "version_tag", ""),
+            knowledge_version=getattr(regulation_knowledge, "version_tag", "")
+            if regulation_knowledge
+            else "",
             regulation_data=regulation_data,
             target_lang=target_lang,
         )
